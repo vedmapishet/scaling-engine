@@ -1,0 +1,1289 @@
+{
+	"info": {
+		"_postman_id": "34320c5f-f391-4d47-a881-5fe078c6ecb8",
+		"name": "Stepik_Course",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "companies",
+			"item": [
+				{
+					"name": "PM-1 CompaniesDefaultRequest",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									"pm.test(\"Headers is valid\", function() {\r",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');\r",
+									"    pm.expect(pm.response.headers.get('Connection')).to.eql('keep-alive')\r",
+									"});\r",
+									"pm.test(\"Len of JSON with default limit\", function() {\r",
+									"    let companiesCount = pm.response.json().data.length;\r",
+									"    pm.expect(companiesCount).to.eql(3);\r",
+									"});\r",
+									"let schema = {\r",
+									"  \"type\": \"object\",\r",
+									"  \"properties\": {\r",
+									"    \"data\": {\r",
+									"      \"type\": \"array\",\r",
+									"      \"items\": \r",
+									"        {\r",
+									"          \"type\": \"object\",\r",
+									"          \"properties\": {\r",
+									"            \"company_id\": {\r",
+									"              \"type\": \"integer\"\r",
+									"            },\r",
+									"            \"company_name\": {\r",
+									"              \"type\": \"string\"\r",
+									"            },\r",
+									"            \"company_address\": {\r",
+									"              \"type\": \"string\"\r",
+									"            },\r",
+									"            \"company_status\": {\r",
+									"              \"type\": \"string\",\r",
+									"              \"enum\": [ \"ACTIVE\", \"CLOSED\", \"BANKRUPT\" ]\r",
+									"            }\r",
+									"          },\r",
+									"          \"required\": [\r",
+									"            \"company_id\",\r",
+									"            \"company_name\",\r",
+									"            \"company_address\",\r",
+									"            \"company_status\"\r",
+									"          ]\r",
+									"        }\r",
+									"    },\r",
+									"    \"meta\": {\r",
+									"      \"type\": \"object\",\r",
+									"      \"properties\": {\r",
+									"        \"limit\": {\r",
+									"          \"type\": \"integer\"\r",
+									"        },\r",
+									"        \"offset\": {\r",
+									"          \"type\": \"integer\"\r",
+									"        },\r",
+									"        \"total\": {\r",
+									"          \"type\": \"integer\"\r",
+									"        }\r",
+									"      },\r",
+									"      \"required\": [\r",
+									"        \"total\"\r",
+									"      ]\r",
+									"    }\r",
+									"  },\r",
+									"  \"required\": [\r",
+									"    \"data\",\r",
+									"    \"meta\"\r",
+									"  ]\r",
+									"};\r",
+									"pm.test('Schema is valid', function() {\r",
+									"    pm.response.to.have.jsonSchema(schema);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "8dfb1c8e-3935-4034-a704-571d1064d5d0"
+							}
+						}
+					],
+					"id": "2ebcb360-95a3-4b06-9df7-611e89b2fa6c",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/api/companies/"
+					},
+					"response": []
+				},
+				{
+					"name": "PM-2 CompaniesWithoutSSL",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Request by http\", function() {\r",
+									"    pm.expect(pm.request.url.protocol).to.eql(\"http\")\r",
+									"});\r",
+									"pm.test(\"Headers is vaild\", function() {\r",
+									"    pm.expect(pm.response.headers.get('Connection')).to.eql('keep-alive');\r",
+									"    pm.expect(pm.response.headers.get('Location')).to.eql('https://send-request.me/api/companies/');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "6cdddc3a-275c-4968-ad94-dfee3f161361"
+							}
+						}
+					],
+					"id": "befb3860-ecd3-422b-8366-f4ebadd8a193",
+					"protocolProfileBehavior": {
+						"followRedirects": false,
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							}
+						],
+						"url": "http://send-request.me/api/companies/"
+					},
+					"response": []
+				},
+				{
+					"name": "PM-3 CompaniesWithLimitAndOffset",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Verify query-params\", function () {\r",
+									"    let limit = parseInt(pm.request.url.query.idx(0).value);\r",
+									"    let offset = parseInt(pm.request.url.query.idx(1).value);\r",
+									"    let metaLimit = pm.response.json().meta.limit;\r",
+									"    let metaOffset = pm.response.json().meta.offset;\r",
+									"\r",
+									"    pm.expect(limit).to.eql(metaLimit);\r",
+									"    pm.expect(offset).to.eql(metaOffset);\r",
+									"})\r",
+									"let DataJson = pm.response.json().data;\r",
+									"pm.test(\"Verify offset\", function () {\r",
+									"    pm.expect(DataJson[0].company_id).to.eql(3);\r",
+									"    pm.expect(DataJson.slice(-1)[0].company_id).to.eql(7);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "40822296-67df-4f42-9a1b-15ac858e39a2"
+							}
+						}
+					],
+					"id": "7296f93a-8408-4ada-b26f-b06385b5f907",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/companies/?limit=5&offset=2",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"companies",
+								""
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "5"
+								},
+								{
+									"key": "offset",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PM-4 CompaniesWithstatusACTIVE",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									"pm.test(\"Headers is valid\", function() {\r",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');\r",
+									"    pm.expect(pm.response.headers.get('Connection')).to.eql('keep-alive')\r",
+									"});\r",
+									"pm.test(\"Len of JSON with default limit\", function() {\r",
+									"    let companiesCount = pm.response.json().data.length;\r",
+									"    pm.expect(companiesCount).to.eql(3);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "bf690721-8841-4bbd-8831-3772d5174f91"
+							}
+						}
+					],
+					"id": "6b991856-7e45-481b-8499-0885c8136035",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/companies/?status=ACTIVE&limit=3&offset=0",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"companies",
+								""
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "ACTIVE"
+								},
+								{
+									"key": "limit",
+									"value": "3"
+								},
+								{
+									"key": "offset",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PM-5 CompaniesWithstatusCLOSED",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									"pm.test(\"Headers is valid\", function() {\r",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');\r",
+									"    pm.expect(pm.response.headers.get('Connection')).to.eql('keep-alive')\r",
+									"});\r",
+									"pm.test(\"Len of JSON with default limit\", function() {\r",
+									"    let companiesCount = pm.response.json().data.length;\r",
+									"    pm.expect(companiesCount).to.eql(3);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "4d6c91c7-7c61-4a49-a466-7e7cc9fd878e"
+							}
+						}
+					],
+					"id": "8f0b0d63-327b-461e-9af5-b1f6343c0ed2",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/companies/?status=CLOSED&limit=3&offset=0",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"companies",
+								""
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "CLOSED"
+								},
+								{
+									"key": "limit",
+									"value": "3"
+								},
+								{
+									"key": "offset",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PM-6 CompaniesWithstatusBANKRUPT",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									"pm.test(\"Headers is valid\", function() {\r",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');\r",
+									"    pm.expect(pm.response.headers.get('Connection')).to.eql('keep-alive')\r",
+									"});\r",
+									"pm.test(\"Len of JSON with default limit\", function() {\r",
+									"    let companiesCount = pm.response.json().data.length;\r",
+									"    pm.expect(companiesCount).to.eql(3);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "2cdfc7dd-638e-4698-ba1a-fadcaa06952f"
+							}
+						}
+					],
+					"id": "bd53addd-baf6-419c-b247-e4f09c401aab",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/companies/?status=BANKRUPT&limit=3&offset=0",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"companies",
+								""
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "BANKRUPT"
+								},
+								{
+									"key": "limit",
+									"value": "3"
+								},
+								{
+									"key": "offset",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PM-7 CompaniesWithInvQueryStatus",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									"pm.test(\"Headers is valid\", function() {\r",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');\r",
+									"    pm.expect(pm.response.headers.get('Connection')).to.eql('keep-alive')\r",
+									"});\r",
+									"pm.test(\"Len of JSON with default limit\", function() {\r",
+									"    let companiesCount = pm.response.json().data.length;\r",
+									"    pm.expect(companiesCount).to.eql(3);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "d52361be-4cf9-405a-bbd5-9d47e3d92200"
+							}
+						}
+					],
+					"id": "d952ecce-deac-4890-808b-c41f5f686aeb",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/companies/?status=ABC&limit=3&offset=0",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"companies",
+								""
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "ABC"
+								},
+								{
+									"key": "limit",
+									"value": "3"
+								},
+								{
+									"key": "offset",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PM-8 CompaniesWithInvQueryLimit",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 422\", function () {\r",
+									"    pm.response.to.have.status(422);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									"pm.test(\"Headers is valid\", function() {\r",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');\r",
+									"    pm.expect(pm.response.headers.get('Connection')).to.eql('keep-alive')\r",
+									"});\r",
+									"pm.test(\"Len of JSON with default limit\", function() {\r",
+									"    let companiesCount = pm.response.json().data.length;\r",
+									"    pm.expect(companiesCount).to.eql(3);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "2f011dd1-9add-46cc-8a68-c1c25e57f568"
+							}
+						}
+					],
+					"id": "73a26232-7451-4e1e-9f7b-24847786e258",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/companies/?status=ACTIVE&limit=-1&offset=0",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"companies",
+								""
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "ACTIVE"
+								},
+								{
+									"key": "limit",
+									"value": "-1"
+								},
+								{
+									"key": "offset",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PM-9 CompaniesWithStrQueryLimit",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 422\", function () {\r",
+									"    pm.response.to.have.status(422);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									"pm.test(\"Headers is valid\", function() {\r",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');\r",
+									"    pm.expect(pm.response.headers.get('Connection')).to.eql('keep-alive')\r",
+									"});\r",
+									"pm.test(\"Len of JSON with default limit\", function() {\r",
+									"    let companiesCount = pm.response.json().data.length;\r",
+									"    pm.expect(companiesCount).to.eql(3);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "d425a1b8-02ba-44db-94a6-ec73c11a5448"
+							}
+						}
+					],
+					"id": "6dfd0ba6-6a3f-4597-bad8-b48e95351de9",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/companies/?status=ACTIVE&limit=abc",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"companies",
+								""
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "ACTIVE"
+								},
+								{
+									"key": "limit",
+									"value": "abc"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PM-10 CompaniesWithInvQueryOffset",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Verify query-params\", function () {\r",
+									"    let limit = parseInt(pm.request.url.query.idx(0).value);\r",
+									"    let offset = parseInt(pm.request.url.query.idx(1).value);\r",
+									"    let metaLimit = pm.response.json().meta.limit;\r",
+									"    let metaOffset = pm.response.json().meta.offset;\r",
+									"\r",
+									"    pm.expect(limit).to.eql(metaLimit);\r",
+									"    pm.expect(offset).to.eql(metaOffset);\r",
+									"})\r",
+									"let DataJson = pm.response.json().data;\r",
+									"pm.test(\"Verify offset\", function () {\r",
+									"    pm.expect(DataJson[0].company_id).to.eql(1);\r",
+									"    pm.expect(DataJson.slice(-1)[0].company_id).to.eql(7);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "a1cbbcd7-5444-4025-8ec2-76809cdf9e84"
+							}
+						}
+					],
+					"id": "59ceffe6-9467-43f3-8219-5650cf02a245",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/companies/?status=ACTIVE&limit=3&offset=-1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"companies",
+								""
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "ACTIVE"
+								},
+								{
+									"key": "limit",
+									"value": "3"
+								},
+								{
+									"key": "offset",
+									"value": "-1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PM-11 CompaniesWithStrQueryOffset",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									"pm.test(\"Headers is valid\", function() {\r",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');\r",
+									"    pm.expect(pm.response.headers.get('Connection')).to.eql('keep-alive')\r",
+									"});\r",
+									"pm.test(\"Len of JSON with default limit\", function() {\r",
+									"    let companiesCount = pm.response.json().data.length;\r",
+									"    pm.expect(companiesCount).to.eql(3);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "114b8467-d3f1-4563-892f-557ac5e20639"
+							}
+						}
+					],
+					"id": "45c02fd1-2e6b-4681-96b7-19f03b8b56a0",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/companies/?status=ACTIVE&limit=3&offset=abc",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"companies",
+								""
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "ACTIVE"
+								},
+								{
+									"key": "limit",
+									"value": "3"
+								},
+								{
+									"key": "offset",
+									"value": "abc"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PM-12 CompanyById",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response when correct Accept-languege\", function() {\r",
+									"    pm.expect(pm.response.json()).to.have.any.keys(\"description\", \"description_lang\")\r",
+									"});\r",
+									"\r",
+									"if(pm.response.json().description_lang){\r",
+									"    pm.test(\"description_lang === EN\", function() {\r",
+									"        pm.expect(pm.response.json().description_lang[0].translation_lang).to.eql(\"EN\")}\r",
+									"    )};\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "2749fd59-4526-4dc5-ad17-c0a65ae54129"
+							}
+						}
+					],
+					"id": "74c9e734-e93f-4458-82b5-3c1792661803",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/api/companies/1"
+					},
+					"response": []
+				},
+				{
+					"name": "PM-13 CompanyByNonexId",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response when correct Accept-languege\", function() {\r",
+									"    pm.expect(pm.response.json()).to.have.any.keys(\"description\", \"description_lang\")\r",
+									"});\r",
+									"\r",
+									"if(pm.response.json().description_lang){\r",
+									"    pm.test(\"description_lang === EN\", function() {\r",
+									"        pm.expect(pm.response.json().description_lang[0].translation_lang).to.eql(\"EN\")}\r",
+									"    )};\r",
+									"pm.test(\"Status code is 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "a9c420b3-21ff-4f57-b3b1-a1ca72a41e0b"
+							}
+						}
+					],
+					"id": "0256e54c-eeb9-4e1a-b1ae-bc0cab72941f",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/api/companies/8"
+					},
+					"response": []
+				},
+				{
+					"name": "PM-14 CompanyByIdLangRU",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response when correct Accept-languege\", function() {\r",
+									"    pm.expect(pm.response.json()).to.have.any.keys(\"description\", \"description_lang\")\r",
+									"});\r",
+									"\r",
+									"if(pm.response.json().description_lang){\r",
+									"    pm.test(\"description_lang === EN\", function() {\r",
+									"        pm.expect(pm.response.json().description_lang[0].translation_lang).to.eql(\"EN\")}\r",
+									"    )};\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "913c068e-57fb-4ed4-9203-b5a8f985b9a8"
+							}
+						}
+					],
+					"id": "66b33d1b-0d21-49ac-b016-4bfd7a04f4ee",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept-Language",
+								"value": "RU",
+								"type": "text"
+							}
+						],
+						"url": "{{baseUrl}}/api/companies/1"
+					},
+					"response": []
+				}
+			],
+			"id": "20b3efbd-3827-4a99-82f9-8a7bb6a8991b"
+		},
+		{
+			"name": "users",
+			"item": [
+				{
+					"name": "PM-19 UsersWithoutSSL",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Request by http\", function() {\r",
+									"    pm.expect(pm.request.url.protocol).to.eql(\"http\")\r",
+									"});\r",
+									"pm.test(\"Headers is vaild\", function() {\r",
+									"    pm.expect(pm.response.headers.get('Connection')).to.eql('keep-alive')\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "b61a7df9-2caf-4f07-9562-2e1f228a9895"
+							}
+						}
+					],
+					"id": "935f7871-956a-4e59-a20e-6f5e5e6cabb2",
+					"protocolProfileBehavior": {
+						"followRedirects": false,
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://send-request.me/api/users"
+					},
+					"response": []
+				},
+				{
+					"name": "PM-20 UserCreate",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"user_id\", pm.response.json().user_id);\r",
+									"pm.collectionVariables.set(\"last_name\", pm.response.json().last_name);\r",
+									"pm.collectionVariables.set(\"company_id\", pm.response.json().company_id);\r",
+									"pm.collectionVariables.set(\"first_name\", pm.response.json().first_name);\r",
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "ad289a85-5e14-4b1d-9b89-d397bac9a6bd"
+							}
+						}
+					],
+					"id": "feeb4b76-8a67-44bb-af3b-162622cebdf8",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"first_name\": \"Pifagor\",\r\n  \"last_name\": \"Samosskiy\",\r\n  \"company_id\": 3\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/api/users"
+					},
+					"response": []
+				},
+				{
+					"name": "PM-25 GetCreatedUser",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.get(\"variable_key\");\r",
+									"\r",
+									"let first_name = pm.collectionVariables.get(\"first_name\");\r",
+									"\r",
+									"let last_name = pm.collectionVariables.get(\"last_name\");\r",
+									"\r",
+									"let company_id = pm.collectionVariables.get(\"company_id\");\r",
+									"\r",
+									"let user_id = pm.collectionVariables.get(\"user_id\");\r",
+									"\r",
+									" \r",
+									"\r",
+									"pm.test(\"Status code is 201\", function () {\r",
+									"\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"});\r",
+									"\r",
+									" \r",
+									"\r",
+									"pm.test(\"Response time is less than 500ms\", function () {\r",
+									"\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"\r",
+									"});\r",
+									"\r",
+									" \r",
+									"\r",
+									"pm.test(\"Headers is valid\", function() {\r",
+									"\r",
+									" \r",
+									"\r",
+									"pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');\r",
+									"\r",
+									" \r",
+									"\r",
+									"pm.expect(pm.response.headers.get('Connection')).to.eql('keep-alive')\r",
+									"\r",
+									" \r",
+									"\r",
+									"});\r",
+									"\r",
+									" \r",
+									"\r",
+									"let schema={\r",
+									"\r",
+									"  \"type\": \"object\",\r",
+									"\r",
+									"          \"properties\": {\r",
+									"\r",
+									"            \"first_name\": {\r",
+									"\r",
+									"              \"type\": \"string\", \r",
+									"\r",
+									"              \"enum\": [first_name]\r",
+									"\r",
+									"            },\r",
+									"\r",
+									"            \"last_name\": {\r",
+									"\r",
+									"              \"type\": \"string\",\r",
+									"\r",
+									"              \"enum\": [last_name]\r",
+									"\r",
+									"            },\r",
+									"\r",
+									"            \"company_id\": {\r",
+									"\r",
+									"              \"type\": \"integer\",\r",
+									"\r",
+									"              \"enum\": [company_id]\r",
+									"\r",
+									"            },\r",
+									"\r",
+									"            \"user_id\": {\r",
+									"\r",
+									"              \"type\": \"integer\",\r",
+									"\r",
+									"              \"enum\": [user_id]\r",
+									"\r",
+									"            }\r",
+									"\r",
+									"          },\r",
+									"\r",
+									"          \"required\": [\r",
+									"\r",
+									"            \"last_name\",\r",
+									"\r",
+									"            \"user_id\"\r",
+									"\r",
+									"          ]\r",
+									"\r",
+									"};\r",
+									"\r",
+									" \r",
+									"\r",
+									"pm.test('Schema is valid', function() {\r",
+									"\r",
+									"pm.response.to.have.jsonSchema(schema);\r",
+									"\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "aa3c83b0-5964-4eb0-8a55-110e044e174c"
+							}
+						}
+					],
+					"id": "06f4f4c5-7dcf-43df-a24a-2ae8026ae355",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/api/users/{{user_id}}"
+					},
+					"response": []
+				},
+				{
+					"name": "PM-30 DeleteCreatedUser",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.get(\"variable_key\");\r",
+									"\r",
+									"let first_name = pm.collectionVariables.get(\"first_name\");\r",
+									"\r",
+									"let last_name = pm.collectionVariables.get(\"last_name\");\r",
+									"\r",
+									"let company_id = pm.collectionVariables.get(\"company_id\");\r",
+									"\r",
+									"let user_id = pm.collectionVariables.get(\"user_id\");\r",
+									"\r",
+									" \r",
+									"\r",
+									"pm.test(\"Status code is 201\", function () {\r",
+									"\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"});\r",
+									"\r",
+									" \r",
+									"\r",
+									"pm.test(\"Response time is less than 500ms\", function () {\r",
+									"\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"\r",
+									"});\r",
+									"\r",
+									" \r",
+									"\r",
+									"pm.test(\"Headers is valid\", function() {\r",
+									"\r",
+									" \r",
+									"\r",
+									"pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');\r",
+									"\r",
+									" \r",
+									"\r",
+									"pm.expect(pm.response.headers.get('Connection')).to.eql('keep-alive')\r",
+									"\r",
+									" \r",
+									"\r",
+									"});\r",
+									"\r",
+									" \r",
+									"\r",
+									"let schema={\r",
+									"\r",
+									"  \"type\": \"object\",\r",
+									"\r",
+									"          \"properties\": {\r",
+									"\r",
+									"            \"first_name\": {\r",
+									"\r",
+									"              \"type\": \"string\", \r",
+									"\r",
+									"              \"enum\": [first_name]\r",
+									"\r",
+									"            },\r",
+									"\r",
+									"            \"last_name\": {\r",
+									"\r",
+									"              \"type\": \"string\",\r",
+									"\r",
+									"              \"enum\": [last_name]\r",
+									"\r",
+									"            },\r",
+									"\r",
+									"            \"company_id\": {\r",
+									"\r",
+									"              \"type\": \"integer\",\r",
+									"\r",
+									"              \"enum\": [company_id]\r",
+									"\r",
+									"            },\r",
+									"\r",
+									"            \"user_id\": {\r",
+									"\r",
+									"              \"type\": \"integer\",\r",
+									"\r",
+									"              \"enum\": [user_id]\r",
+									"\r",
+									"            }\r",
+									"\r",
+									"          },\r",
+									"\r",
+									"          \"required\": [\r",
+									"\r",
+									"            \"last_name\",\r",
+									"\r",
+									"            \"user_id\"\r",
+									"\r",
+									"          ]\r",
+									"\r",
+									"};\r",
+									"\r",
+									" \r",
+									"\r",
+									"pm.test('Schema is valid', function() {\r",
+									"\r",
+									"pm.response.to.have.jsonSchema(schema);\r",
+									"\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "cd269757-b91c-462a-a5c2-9e7ee47d52f7"
+							}
+						}
+					],
+					"id": "0d0b0513-dcdc-45e2-8df2-c1ec270dbfee",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/api/users/{{user_id}}"
+					},
+					"response": []
+				},
+				{
+					"name": "PM-34 IssuesGetUserById",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.get(\"variable_key\");\r",
+									"\r",
+									"let first_name = pm.collectionVariables.get(\"first_name\");\r",
+									"\r",
+									"let last_name = pm.collectionVariables.get(\"last_name\");\r",
+									"\r",
+									"let company_id = pm.collectionVariables.get(\"company_id\");\r",
+									"\r",
+									"let user_id = pm.collectionVariables.get(\"user_id\");\r",
+									"\r",
+									" \r",
+									"\r",
+									"pm.test(\"Status code is 201\", function () {\r",
+									"\r",
+									"    pm.response.to.have.status(200);\r",
+									"\r",
+									"});\r",
+									"\r",
+									" \r",
+									"\r",
+									"pm.test(\"Response time is less than 500ms\", function () {\r",
+									"\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"\r",
+									"});\r",
+									"\r",
+									" \r",
+									"\r",
+									"pm.test(\"Headers is valid\", function() {\r",
+									"\r",
+									" \r",
+									"\r",
+									"pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');\r",
+									"\r",
+									" \r",
+									"\r",
+									"pm.expect(pm.response.headers.get('Connection')).to.eql('keep-alive')\r",
+									"\r",
+									" \r",
+									"\r",
+									"});\r",
+									"\r",
+									" \r",
+									"\r",
+									"let schema={\r",
+									"\r",
+									"  \"type\": \"object\",\r",
+									"\r",
+									"          \"properties\": {\r",
+									"\r",
+									"            \"first_name\": {\r",
+									"\r",
+									"              \"type\": \"string\", \r",
+									"\r",
+									"              \"enum\": [first_name]\r",
+									"\r",
+									"            },\r",
+									"\r",
+									"            \"last_name\": {\r",
+									"\r",
+									"              \"type\": \"string\",\r",
+									"\r",
+									"              \"enum\": [last_name]\r",
+									"\r",
+									"            },\r",
+									"\r",
+									"            \"company_id\": {\r",
+									"\r",
+									"              \"type\": \"integer\",\r",
+									"\r",
+									"              \"enum\": [company_id]\r",
+									"\r",
+									"            },\r",
+									"\r",
+									"            \"user_id\": {\r",
+									"\r",
+									"              \"type\": \"integer\",\r",
+									"\r",
+									"              \"enum\": [user_id]\r",
+									"\r",
+									"            }\r",
+									"\r",
+									"          },\r",
+									"\r",
+									"          \"required\": [\r",
+									"\r",
+									"            \"last_name\",\r",
+									"\r",
+									"            \"user_id\"\r",
+									"\r",
+									"          ]\r",
+									"\r",
+									"};\r",
+									"\r",
+									" \r",
+									"\r",
+									"pm.test('Schema is valid', function() {\r",
+									"\r",
+									"pm.response.to.have.jsonSchema(schema);\r",
+									"\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "6346f3f6-526d-49e2-9d6d-e8a3bd46fb0e"
+							}
+						}
+					],
+					"id": "c17b559c-ae95-4866-8de6-2d5caa3e4183",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/api/issues/users/{{user_id}}"
+					},
+					"response": []
+				}
+			],
+			"id": "49fb17b7-5edb-4bf4-9733-851ee34bf7da"
+		},
+		{
+			"name": "issues",
+			"item": [],
+			"id": "4e3a2916-ef77-43e4-8b60-f0fac6fdaf9d"
+		}
+	],
+	"variable": [
+		{
+			"key": "first_name",
+			"value": ""
+		},
+		{
+			"key": "last_name",
+			"value": ""
+		},
+		{
+			"key": "company_id",
+			"value": ""
+		},
+		{
+			"key": "user_id",
+			"value": ""
+		}
+	]
+}
